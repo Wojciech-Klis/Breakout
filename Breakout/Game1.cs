@@ -50,7 +50,7 @@ namespace Breakout
 
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                if (_paddlePos > 0.0f)
+                if (_paddlePos.X > 0)
                 {
                     Vector2 pos = _paddle.GetPosition();
                     pos.X -= _paddle.GetVelocity();
