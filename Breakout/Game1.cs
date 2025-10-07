@@ -8,9 +8,13 @@ namespace Breakout
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Sprite _paddle, _ball;
-        private Texture2D _paddleTexture, _ballTexture;
+        private Sprite _paddle, _ball, _brick;
+        private Sprite[,] _bricks = new Sprite[5, 5];
+        private bool _ballRight, _ballLeft = true, _ballUp, _ballDown = true;
+        private Texture2D _paddleTexture, _ballTexture, _brickTexture;
         private Vector2 _paddlePos, _ballPos;
+        private float _ballVelocity;
+        private Rectangle _ballBox, _paddleBox;
 
         public Game1()
         {
@@ -36,6 +40,7 @@ namespace Breakout
 
             _paddleTexture = Content.Load<Texture2D>("paddle");
             _ballTexture = Content.Load<Texture2D>("ball");
+            _brickTexture = Content.Load<Texture2D>("brick");
 
             _paddlePos = new Vector2(_graphics.PreferredBackBufferWidth / 2 - _paddleTexture.Width / 2,
                 _graphics.PreferredBackBufferHeight - _paddleTexture.Height);
@@ -45,7 +50,7 @@ namespace Breakout
             _ballPos = new Vector2(_graphics.PreferredBackBufferWidth / 2 - _ballTexture.Width / 2,
                 _graphics.PreferredBackBufferHeight / 2 - _ballTexture.Height / 2);
             _ball = new Sprite(_ballTexture, _ballPos,
-                12.0f, Color.White);
+                6.0f, Color.White);
         }
 
         protected override void Update(GameTime gameTime)
@@ -54,6 +59,12 @@ namespace Breakout
                 Exit();
 
             // TODO: Add your update logic here
+
+            _ball.SetBoundingBox();
+            _paddle.SetBoundingBox();
+            _ballBox = _ball.GetBoundingBox();
+            _paddleBox = _paddle.GetBoundingBox();
+
 
             if (Keyboard.GetState().IsKeyDown(Keys.A) && _paddlePos.X >= 0)
             {
@@ -70,12 +81,10 @@ namespace Breakout
                 _paddle.SetPosition(_paddlePos);
             }
 
-            _ballPos = _ball.GetPosition();
-
             if (_ballPos.X <= 0)
             {
                 _ballRight = true;
-                _ballLeft = false:
+                _ballLeft = false;
             }
 
             if (_ballPos.X >= _graphics.PreferredBackBufferWidth - _ballTexture.Width)
@@ -96,6 +105,40 @@ namespace Breakout
                 _ballDown = false;
             }
 
+            if (_ballBox.Intersects(_paddleBox))
+            {
+                _ballUp = true;
+                _ballDown = false;
+            }
+
+            if (_ballDown == true)
+            {
+                _ballPos = _ball.GetPosition();
+                _ballPos.Y += _ball.GetVelocity();
+                _ball.SetPosition(_ballPos);
+
+            }
+
+            if (_ballUp == true)
+            {
+                _ballPos = _ball.GetPosition();
+                _ballPos.Y -= _ball.GetVelocity();
+                _ball.SetPosition(_ballPos);
+            }
+
+            if (_ballLeft == true)
+            {
+                _ballPos = _ball.GetPosition();
+                _ballPos.X -= _paddle.GetVelocity();
+                _ball.SetPosition(_ballPos);
+            }
+
+            if (_ballRight == true)
+            {
+                _ballPos = _ball.GetPosition();
+                _ballPos.X += _paddle.GetVelocity();
+                _ball.SetPosition(_ballPos);
+            }
 
             base.Update(gameTime);
         }
@@ -105,10 +148,14 @@ namespace Breakout
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-
+            
             _spriteBatch.Begin();
             _paddle.DrawSprite(_spriteBatch);
             _ball.DrawSprite(_spriteBatch);
+            foreach (_brick in _bricks)
+            {
+                _brick.DrawSprite(_spriteBatch);
+            }
             _spriteBatch.End();
 
             base.Draw(gameTime);

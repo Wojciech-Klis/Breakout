@@ -35,11 +35,14 @@ namespace Breakout
             spriteBatch.Draw(_spriteTexture, _position, _color);
         }
 
-        public void Update()
+        public void SetBoundingBox()
         {
-            _boundingBox = new Rectangle();
-            _boundingBox.X = (int)_position.X; 
-            _boundingBox.Y = (int)_position.Y;
+            _boundingBox = new Rectangle((int)_position.X, (int)_position.Y, _spriteTexture.Width, _spriteTexture.Height);
+        }
+
+        public Rectangle GetBoundingBox()
+        {
+            return _boundingBox;
         }
 
         public Vector2 GetPosition()
